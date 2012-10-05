@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+.feedInfo {
+    text-align: center; 
+  }
+
+table.feedItem {
+    margin-left:auto; 
+    margin-right:auto;
+    width: 500px;
+}
+table
+{
+	table-layout:fixed;
+	border-color: #600;
+	background-color: #FFC;
+	margin: 10px;
+}
+
+th
+{
+	width:100px;
+	background-color:green;
+	color:white;
+}
+</style>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script>
+function parseRSS(url, callback) {
+  $.ajax({
+    url: document.location.protocol + '//ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=10&callback=?&q=' + encodeURIComponent(url),
+    dataType: 'json',
+    success: function(data) {callback(data.responseData.feed);},
+  });
+  $("#display").html("Loading...");
+}
+
+var myDisplayItem=["title","author"];
+var out="";
+function renderRSS(jsonObj){
+	out+= "<h1 class='feedInfo'>VODO All Works</h1>";
+	for(prop in jsonObj)
+    {
+	 	if(typeof(jsonObj[prop]) == "object"){
+			for(item in jsonObj[prop]){
+				renderOneFeed(jsonObj[prop][item]);
+			}
+		}
+	 //	else{
+	 //		out += "<tr><th>" + prop + "</th><td>" + jsonObj[prop] + "</td></tr>";
+	 //	}
+    }
+	$("#display").html(out);
+	$('.hideItem').hide();
+	$('.feedItem').hover(
+			  function () {
+				$(this).css('width','800px');
+			    $('.hideItem',this).show();
+			  }, 
+			  function () {
+				$(this).css('width','500px');
+				$('.hideItem',this).hide();
+			  }
+			);
+};
+
+function renderOneFeed(obj){
+	out+="<table class='feedItem'>";
+	for(item in obj){
+		if(myDisplayItem.indexOf(item)>-1){
+				out+= "<tr><th>" + item + "</th><td>" + obj[item] + "</td></tr>";
+		}
+		else{
+			if(item=="link"){
+				out+= "<tr class='hideItem'><th>" + item + "</th><td><a href='"+ obj[item]+"'>" + obj[item] + "</a></td></tr>";
+			}
+			else{
+				out+= "<tr class='hideItem'><th>" + item + "</th><td>" + obj[item] + "</td></tr>";
+			}
+		}
+	}
+	out+="</table>"	
+};
+
+</script>
+<title>Vodo feed</title>
+</head>
+<body>
+<div id="display"></div>
+<script>
+parseRSS("http://vodo.net/feeds/public",renderRSS);
+
+</script>
+</body>
+</html>
